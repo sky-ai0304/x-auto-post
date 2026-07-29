@@ -4,7 +4,7 @@ import tweepy
 from openai import OpenAI
 
 
-required = [
+REQUIRED_SECRETS = [
     "OPENAI_API_KEY",
     "X_API_KEY",
     "X_API_SECRET",
@@ -12,7 +12,7 @@ required = [
     "X_ACCESS_TOKEN_SECRET",
 ]
 
-missing = [name for name in required if not os.getenv(name)]
+missing = [name for name in REQUIRED_SECRETS if not os.getenv(name)]
 if missing:
     raise RuntimeError(f"Missing secrets: {', '.join(missing)}")
 
@@ -20,27 +20,26 @@ if missing:
 openai_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 prompt = """
-Xに投稿する日本語の文章を1つ作ってください。
-
-アカウントのテーマ：
-・AI
-・投資
-・XRP
-・タイ生活
-・不動産
-・実際に試した体験や率直な感想
+現在の最新情報をWeb検索し、XRPに関する重要なニュースを1件選んで、
+日本語のX投稿を作成してください。
 
 条件：
-・自然な個人の投稿にする
-・煽りすぎない
-・断定的な投資助言をしない
+・できるだけ直近24時間のニュースを優先する
+・信頼できる一次情報または大手報道を優先する
+・事実と推測を区別する
+・価格上昇を煽らない
+・投資助言をしない
+・ニュースの日付を確認する
 ・220文字以内
-・ハッシュタグは最大2個
-・前置きや説明を付けず、投稿本文だけを出力する
+・ハッシュタグは #XRP を含めて最大2個
+・記事タイトルの丸写しはしない
+・前置きや説明は付けず、投稿本文だけを出力する
+・重要な新情報が見つからない場合は、その旨を自然に投稿する
 """
 
 response = openai_client.responses.create(
     model="gpt-5-mini",
+    tools=[{"type": "web_search"}],
     input=prompt,
     store=False,
 )
@@ -64,6 +63,7 @@ x_client = tweepy.Client(
 )
 
 result = x_client.create_tweet(text=text)
+
 print(f"Posted successfully: {result.data}")
 
 
