@@ -64,7 +64,7 @@ x_client = tweepy.Client(
 )
 
 result = x_client.create_tweet(text=text)
-print(f"Posted successfully: {result.data}")import os
+print(f"Posted successfully: {result.data}")
 import tweepy
 
 required = [
