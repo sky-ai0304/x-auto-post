@@ -85,7 +85,9 @@ client = tweepy.Client(
     access_token_secret=os.environ["X_ACCESS_TOKEN_SECRET"],
 )
 
-text = "X自動投稿のテストです。GitHub Actionsから投稿しました。"
+from datetime import datetime
+
+text = f"AI自動投稿テスト {datetime.now()}"
 
 response = client.create_tweet(text=text)
 print(f"Posted successfully: {response.data}")
