@@ -69,5 +69,3 @@ print(f"Posted successfully: {result.data}")
 
 
 
-response = client.create_tweet(text=text)
-print(f"Posted successfully: {response.data}")
