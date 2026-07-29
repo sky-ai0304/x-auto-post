@@ -14,10 +14,12 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install tweepy
+      - name: Install packages
+        run: pip install tweepy openai
 
       - name: Run bot
         env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           X_API_KEY: ${{ secrets.X_API_KEY }}
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
