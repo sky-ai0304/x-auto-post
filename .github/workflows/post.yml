@@ -3,8 +3,7 @@ name: X Auto Post
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"
-
+    - cron: "7 0 * * *"
 jobs:
   post:
     runs-on: ubuntu-latest
