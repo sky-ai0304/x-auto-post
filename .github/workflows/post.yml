@@ -16,7 +16,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install packages
-        run: pip install tweepy openai
+        run: pip install tweepy openai matplotlib
 
       - name: Run bot
         env:
