@@ -203,7 +203,7 @@ def calculate_macd(closes):
     latest_signal = signal_line[-1]
     histogram = latest_macd - latest_signal
     return latest_macd, latest_signal, histogram
-    def make_chart(candles, filename="xrp_chart.png"):
+ def make_chart(candles, filename="xrp_chart.png"):
     if len(candles) < 35:
         raise RuntimeError("チャート用ローソク足データが不足しています")
 
@@ -371,7 +371,7 @@ def calculate_macd(closes):
     plt.close()
 
     return filename
-    return latest_macd, latest_signal, histogram
+    
 
 
 def market_judgement(rsi, macd, signal):
