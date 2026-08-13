@@ -238,12 +238,16 @@ def make_chart(candles, filename="xrp_chart.png"):
 
     for i in range(len(closes)):
         part = closes[:i + 1]
+　　　　if len(part) >= 35:
+    　　　 macd_result = calculate_macd(part)
 
-        if len(part) >= 35:
-            m, s, h = calculate_macd(part)
-            macd_values[i] = m
-            signal_values[i] = s
-            hist_values[i] = h
+            if macd_result is not None:
+                m, s, h = macd_result
+
+                if m is not None and s is not None and h is not None:
+                    macd_values[i] = m
+                    signal_values[i] = s
+                    hist_values[i] = h
 
     fig, (ax1, ax2, ax3) = plt.subplots(
         3,
