@@ -202,7 +202,8 @@ def calculate_macd(closes):
     latest_macd = macd_line[-1]
     latest_signal = signal_line[-1]
     histogram = latest_macd - latest_signal
-def make_chart(candles, filename="xrp_chart.png"):
+    return latest_macd, latest_signal, histogram
+    def make_chart(candles, filename="xrp_chart.png"):
     if len(candles) < 35:
         raise RuntimeError("チャート用ローソク足データが不足しています")
 
