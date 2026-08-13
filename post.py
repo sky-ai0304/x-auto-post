@@ -5,8 +5,9 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import tweepy
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 from openai import OpenAI
-
 
 # =========================
 # Secrets check
@@ -201,7 +202,171 @@ def calculate_macd(closes):
     latest_macd = macd_line[-1]
     latest_signal = signal_line[-1]
     histogram = latest_macd - latest_signal
+def make_chart(candles, filename="xrp_chart.png"):
+    if len(candles) < 35:
+        raise RuntimeError("チャート用ローソク足データが不足しています")
 
+    # 直近72本だけ表示
+    data = candles[-72:]
+
+    times = [
+        datetime.fromtimestamp(
+            c["timestamp"] / 1000,
+            tz=ZoneInfo("Asia/Tokyo")
+        )
+        for c in data
+    ]
+
+    opens = [c["open"] for c in data]
+    highs = [c["high"] for c in data]
+    lows = [c["low"] for c in data]
+    closes = [c["close"] for c in data]
+
+    # RSI
+    rsi_values = []
+    for i in range(len(closes)):
+        part = closes[:i + 1]
+        if len(part) >= 15:
+            rsi_values.append(calculate_rsi(part))
+        else:
+            rsi_values.append(None)
+
+    # MACD
+    macd_values = [None] * len(closes)
+    signal_values = [None] * len(closes)
+    hist_values = [None] * len(closes)
+
+    for i in range(len(closes)):
+        part = closes[:i + 1]
+
+        if len(part) >= 35:
+            m, s, h = calculate_macd(part)
+            macd_values[i] = m
+            signal_values[i] = s
+            hist_values[i] = h
+
+    fig, (ax1, ax2, ax3) = plt.subplots(
+        3,
+        1,
+        figsize=(12, 8),
+        sharex=True,
+        gridspec_kw={"height_ratios": [3, 1, 1]}
+    )
+
+    # -----------------
+    # ローソク足
+    # -----------------
+    width = 0.025
+
+    for t, o, h, l, c in zip(times, opens, highs, lows, closes):
+        color = "green" if c >= o else "red"
+
+        ax1.plot(
+            [t, t],
+            [l, h],
+            color=color,
+            linewidth=1
+        )
+
+        bottom = min(o, c)
+        height = abs(c - o)
+
+        if height == 0:
+            height = 0.01
+
+        ax1.bar(
+            t,
+            height,
+            bottom=bottom,
+            width=width,
+            color=color,
+            align="center"
+        )
+
+    ax1.set_title("XRP/JPY 1H")
+    ax1.set_ylabel("JPY")
+    ax1.grid(alpha=0.2)
+
+    # -----------------
+    # MACD
+    # -----------------
+    ax2.plot(
+        times,
+        macd_values,
+        label="MACD"
+    )
+
+    ax2.plot(
+        times,
+        signal_values,
+        label="Signal"
+    )
+
+    hist_clean = [
+        v if v is not None else 0
+        for v in hist_values
+    ]
+
+    ax2.bar(
+        times,
+        hist_clean,
+        width=width,
+        alpha=0.5,
+        label="Histogram"
+    )
+
+    ax2.axhline(
+        0,
+        linewidth=0.8
+    )
+
+    ax2.legend(loc="upper left")
+    ax2.grid(alpha=0.2)
+
+    # -----------------
+    # RSI
+    # -----------------
+    ax3.plot(
+        times,
+        rsi_values,
+        label="RSI"
+    )
+
+    ax3.axhline(
+        70,
+        linestyle="--",
+        linewidth=0.8
+    )
+
+    ax3.axhline(
+        30,
+        linestyle="--",
+        linewidth=0.8
+    )
+
+    ax3.set_ylim(0, 100)
+    ax3.legend(loc="upper left")
+    ax3.grid(alpha=0.2)
+
+    ax3.xaxis.set_major_formatter(
+        mdates.DateFormatter(
+            "%m/%d %H:%M",
+            tz=ZoneInfo("Asia/Tokyo")
+        )
+    )
+
+    plt.xticks(rotation=30)
+    plt.tight_layout()
+
+    plt.savefig(
+        filename,
+        dpi=150,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+    return filename
     return latest_macd, latest_signal, histogram
 
 
@@ -241,7 +406,7 @@ if len(candles) < 35:
     raise RuntimeError(
         f"ローソク足データ不足: {len(candles)}本"
     )
-
+chart_file = make_chart(candles)
 closes = [c["close"] for c in candles]
 
 rsi = calculate_rsi(closes)
@@ -337,8 +502,22 @@ x_client = tweepy.Client(
     ],
 )
 
-result = x_client.create_tweet(text=text)
+auth = tweepy.OAuth1UserHandler(
+    os.environ["X_API_KEY"],
+    os.environ["X_API_SECRET"],
+    os.environ["X_ACCESS_TOKEN"],
+    os.environ["X_ACCESS_TOKEN_SECRET"],
+)
 
+api = tweepy.API(auth)
+
+media = api.media_upload(filename=chart_file)
+
+# 画像付きで投稿
+result = x_client.create_tweet(
+    text=text,
+    media_ids=[media.media_id]
+)
 print(
     f"Posted successfully: {result.data}"
 )
