@@ -412,7 +412,27 @@ if len(candles) < 35:
     )
 chart_file = make_chart(candles)
 closes = [c["close"] for c in candles]
+# 直近24本の確定足からサポート・レジスタンスを算出
+recent_candles = candles[-25:-1]
+support = min(c["low"] for c in recent_candles)
+resistance = max(c["high"] for c in recent_candles)
+current_price = ticker["last"]
 
+if current_price > resistance:
+    price_scenario = (
+        f"{resistance:.3f}円の上値抵抗を突破。"
+        "上昇継続の可能性がある一方、押し戻しに注意"
+    )
+elif current_price < support:
+    price_scenario = (
+        f"{support:.3f}円の下値支持を割り込み。"
+        "下落継続に警戒"
+    )
+else:
+    price_scenario = (
+        f"{resistance:.3f}円を明確に上抜けば上昇、"
+        f"{support:.3f}円を割れば下落に警戒"
+    )
 rsi = calculate_rsi(closes)
 macd, signal, histogram = calculate_macd(closes)
 
@@ -428,6 +448,9 @@ XRP/JPY市場データ（bitbank）
 24時間騰落率: {ticker['change_pct']:+.2f}%
 24時間高値: {ticker['high']:.3f}円
 24時間安値: {ticker['low']:.3f}円
+上値抵抗: {resistance:.3f}円
+下値支持: {support:.3f}円
+価格シナリオ: {price_scenario}
 1時間足 RSI(14): {rsi:.1f}
 MACD: {macd:.3f}
 Signal: {signal:.3f}
@@ -455,7 +478,10 @@ Webでは直近24時間のXRPに関する重要ニュースを検索してくだ
 条件:
 ・まず価格、24時間騰落率、RSI、MACDを簡潔に伝える
 ・テクニカルから短期の見方を1文入れる
-・重要ニュースがあれば1件だけ追加する
+・・上値抵抗と下値支持を具体的な価格で必ず伝える
+・上値抵抗を上抜けた場合と、下値支持を割れた場合のシナリオを簡潔に示す
+・断定せず「可能性」「警戒」「確認したい」を使う
+重要ニュースがあれば1件だけ追加する
 ・重要ニュースが無い場合は「ニュースなし」と書かず、
   テクニカル分析だけで投稿を完成させる
 ・価格上昇を煽らない
