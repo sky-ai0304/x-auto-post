@@ -130,7 +130,6 @@ def save_probability(probability):
 
 def generate_post(current, previous):
     diff = current["yes_probability"] - previous
-
     direction = "上昇" if diff > 0 else "低下"
 
     client = OpenAI(
@@ -140,12 +139,21 @@ def generate_post(current, previous):
     prompt = f"""
 あなたは暗号資産・米国政策を扱うX速報アカウントの編集者です。
 
-以下の事実だけを使って、日本語のX投稿を1本作成してください。
+まずWeb検索を使って、直近48時間のCLARITY Act関連ニュースを確認してください。
 
-市場:
-Polymarket
-テーマ:
-2026年中にCLARITY Actが成立・大統領署名される確率
+特に以下を優先してください。
+・米上院の採決日程
+・60票確保の見通し
+・民主党/共和党の合意や対立
+・修正案
+・ステーブルコイン報酬問題
+・倫理規定
+・ホワイトハウスの発言
+・SEC/CFTCの規制方針
+・Reuters、Bloomberg、Politico、議会公式、SEC、CFTC、White Houseなど信頼性の高い情報源
+
+Polymarket市場:
+2026年中にCLARITY Actが成立・大統領署名されるか
 
 現在のYES確率:
 {current["yes_probability"]:.1f}%
@@ -162,26 +170,38 @@ Polymarket
 市場タイトル:
 {current["question"]}
 
-ルール:
+検索結果から、今回の確率変動を説明できる明確な新材料が確認できた場合だけ、その理由を投稿文に含めてください。
+
+理由が確認できない場合は、推測せず
+「現時点で確率変動の明確な要因は確認できていません」
+という趣旨にしてください。
+
+X投稿ルール:
+・日本語
 ・280文字以内
-・最初の1行で確率変動を強く見せる
+・最初の1行で確率変動を目立たせる
+・Polymarketの市場予想であり成立を保証する数字ではないと分かる表現
 ・煽りすぎない
-・確率はPolymarketの市場予想であり、成立を保証する数字ではないことが伝わる文章
-・XRPへの意味を最後に1文だけ簡潔に入れる
-・具体的な理由が与えられていないので、変動理由を捏造しない
+・事実と推測を混同しない
+・XRPへの意味を最後に1文だけ入れる
+・URLは入れない
 ・投資助言はしない
-・#CLARITYAct #XRP #仮想通貨 を最後に付ける
+・最後に #CLARITYAct #XRP #仮想通貨
 """
 
     response = client.responses.create(
-        model="gpt-5.4-mini",
+        model="gpt-5.6",
+        tools=[
+            {
+                "type": "web_search"
+            }
+        ],
         input=prompt,
     )
 
     return response.output_text.strip()
-
-
-def post_to_x(text):
+    
+    def post_to_x(text):
     client = tweepy.Client(
         consumer_key=os.environ["X_API_KEY"],
         consumer_secret=os.environ["X_API_SECRET"],
