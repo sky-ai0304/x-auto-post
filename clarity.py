@@ -234,7 +234,18 @@ def main():
 
     print(f"前回: {previous:.1f}%")
     print(f"変化: {diff:+.1f}ポイント")
+    dry_run = os.getenv("CLARITY_DRY_RUN", "false").lower() == "true"
 
+    if dry_run:
+        print("=== DRY RUN：Xには投稿しません ===")
+
+        text = generate_post(current, previous)
+
+        print("Web検索＋AIで生成された投稿文:")
+        print(text)
+
+        save_probability(current_probability)
+        return
     if abs(diff) < THRESHOLD_POINTS:
         print(
             f"{THRESHOLD_POINTS:.1f}ポイント未満の変動なので投稿しません。"
