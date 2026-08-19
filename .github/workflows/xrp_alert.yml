@@ -31,7 +31,7 @@ jobs:
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
-          XRP_ALERT_DRY_RUN: "true"
+          XRP_ALERT_DRY_RUN: "false"
         run: python xrp_alert.py
 
       - name: Commit alert state
