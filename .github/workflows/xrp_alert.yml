@@ -1,0 +1,47 @@
+name: XRP Alert Watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+jobs:
+  xrp-alert:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install packages
+        run: pip install tweepy openai
+
+      - name: Run XRP alert
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          XRP_ALERT_DRY_RUN: "true"
+        run: python xrp_alert.py
+
+      - name: Commit alert state
+        run: |
+          if [ -f xrp_alert_state.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add xrp_alert_state.json
+            git diff --cached --quiet || git commit -m "Update XRP alert state"
+            git push
+          else
+            echo "No alert state file yet"
+          fi
