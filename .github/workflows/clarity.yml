@@ -2,7 +2,15 @@ name: CLARITY Act Probability Watch
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Web検索＋AI生成だけテスト（X投稿なし）"
+        required: false
+        default: false
+        type: boolean
+
   schedule:
+    
     - cron: "17 * * * *"
 
 jobs:
@@ -36,4 +44,5 @@ jobs:
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+         CLARITY_DRY_RUN: ${{ inputs.dry_run || false }} 
         run: python clarity.py
