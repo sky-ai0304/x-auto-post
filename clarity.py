@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import urllib.parse
 import urllib.request
 
@@ -128,6 +129,25 @@ def save_probability(probability):
         )
 
 
+def clean_generated_post(text):
+    text = text.strip()
+    text = re.sub(r"^```[^\r\n]*\r?\n", "", text)
+    text = re.sub(r"\r?\n```$", "", text)
+    text = text.replace("```", "").replace("**", "").strip()
+    lines = text.splitlines()
+
+    while lines and re.fullmatch(
+        r"(?:#+\s*)?(?:(?:以下|こちら)(?:が|は)?\s*)?"
+        r"(?:X(?:への)?\s*)?投稿案(?:[（(].*?280\s*字以内.*?[）)])?"
+        r"(?:です|になります)?[。:：]?",
+        lines[0].strip(),
+        flags=re.IGNORECASE,
+    ):
+        lines.pop(0)
+
+    return "\n".join(lines).strip()
+
+
 def generate_post(current, previous):
     diff = current["yes_probability"] - previous
     direction = "上昇" if diff > 0 else "低下"
@@ -187,6 +207,10 @@ X投稿ルール:
 ・URLは入れない
 ・投資助言はしない
 ・最後に #CLARITYAct #XRP #仮想通貨
+・Xへそのまま投稿する本文だけを出力する
+・「X投稿案」「投稿案」「280字以内」などの見出しを付けない
+・「以下が投稿案です」などの前置きを付けない
+・Markdownの太字、見出し、コードブロックなどの装飾を使わない
 """
 
     response = client.responses.create(
@@ -199,7 +223,7 @@ X投稿ルール:
         input=prompt,
     )
 
-    return response.output_text.strip()
+    return clean_generated_post(response.output_text)
     
 def post_to_x(text):
     client = tweepy.Client(
