@@ -201,8 +201,8 @@ X投稿ルール:
 
     return response.output_text.strip()
     
-    def post_to_x(text):
-        client = tweepy.Client(
+def post_to_x(text):
+    client = tweepy.Client(
         consumer_key=os.environ["X_API_KEY"],
         consumer_secret=os.environ["X_API_SECRET"],
         access_token=os.environ["X_ACCESS_TOKEN"],
