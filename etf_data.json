@@ -1,6 +1,6 @@
 {
   "source": "SoSoValue / SoDEX Market Data API",
-  "generated_at_utc": "2026-09-06T01:17:41.204332+00:00",
+  "generated_at_utc": "2026-09-07T01:16:27.761434+00:00",
   "summary": {
     "symbol": "XRP",
     "country": "US",
@@ -154,13 +154,6 @@
       "total_net_inflow": 0.0,
       "total_value_traded": 11948142.0,
       "total_net_assets": 950045163.4499999,
-      "cum_net_inflow": 1510351241.17
-    },
-    {
-      "date": "2026-08-07",
-      "total_net_inflow": 0.0,
-      "total_value_traded": 15789156.3,
-      "total_net_assets": 953190292.61,
       "cum_net_inflow": 1510351241.17
     }
   ]
