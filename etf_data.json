@@ -1,21 +1,28 @@
 {
   "source": "SoSoValue / SoDEX Market Data API",
-  "generated_at_utc": "2026-10-09T03:03:17.306101+00:00",
+  "generated_at_utc": "2026-10-10T02:39:25.718970+00:00",
   "summary": {
     "symbol": "XRP",
     "country": "US",
-    "date": "2026-10-08",
-    "daily_net_inflow_usd": 8166426.4,
-    "previous_day_net_inflow_usd": 0.0,
-    "daily_flow_change_usd": 8166426.4,
+    "date": "2026-10-09",
+    "daily_net_inflow_usd": 0.0,
+    "previous_day_net_inflow_usd": 8166426.4,
+    "daily_flow_change_usd": -8166426.4,
     "seven_trading_day_net_inflow_usd": 12092267.73,
     "seven_trading_day_average_usd": 1727466.8185714285,
     "cumulative_net_inflow_usd": 1802016838.45,
-    "total_net_assets_usd": 1555742443.3500001,
-    "total_value_traded_usd": 65438264.6,
-    "flow_direction": "inflow"
+    "total_net_assets_usd": 1574100240.93,
+    "total_value_traded_usd": 26326785.87,
+    "flow_direction": "flat"
   },
   "history": [
+    {
+      "date": "2026-10-09",
+      "total_net_inflow": 0,
+      "total_value_traded": 26326785.87,
+      "total_net_assets": 1574100240.93,
+      "cum_net_inflow": 1802016838.45
+    },
     {
       "date": "2026-10-08",
       "total_net_inflow": 8166426.4,
@@ -162,13 +169,6 @@
       "total_value_traded": 29433740.75,
       "total_net_assets": 1449371483.86,
       "cum_net_inflow": 1700813802.26
-    },
-    {
-      "date": "2026-09-09",
-      "total_net_inflow": 12285024.17000006,
-      "total_value_traded": 23569919.51,
-      "total_net_assets": 1505669771.03,
-      "cum_net_inflow": 1695671240.71
     }
   ]
 }
